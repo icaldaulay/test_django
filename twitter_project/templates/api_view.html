@@ -1,0 +1,357 @@
+{% extends 'base.html' %}
+
+{% block title %}API - Twitter{% endblock %}
+
+{% block extra_css %}
+<style>
+    .api-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid #E1E8ED;
+        position: sticky;
+        top: 0;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        z-index: 100;
+    }
+    
+    .api-header h4 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 800;
+        color: #14171A;
+    }
+    
+    .api-content {
+        padding: 20px;
+    }
+    
+    .api-section {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(225, 232, 237, 0.5);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .api-section h5 {
+        font-size: 18px;
+        font-weight: 700;
+        color: #14171A;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .endpoint-card {
+        background: #F7F9FA;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+        border-left: 4px solid #1DA1F2;
+    }
+    
+    .endpoint-url {
+        font-family: 'Courier New', monospace;
+        background: #E8F5E8;
+        color: #2E7D32;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 14px;
+        margin: 8px 0;
+        word-break: break-all;
+    }
+    
+    .method-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-right: 8px;
+    }
+    
+    .method-get {
+        background: #E3F2FD;
+        color: #1976D2;
+    }
+    
+    .response-example {
+        background: #263238;
+        color: #E8F5E8;
+        padding: 16px;
+        border-radius: 8px;
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+        overflow-x: auto;
+        margin-top: 12px;
+    }
+    
+    .try-button {
+        background: #1DA1F2;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 8px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        margin-top: 12px;
+    }
+    
+    .try-button:hover {
+        background: #1A91DA;
+    }
+    
+    .feature-list {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .feature-list li {
+        padding: 8px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #14171A;
+    }
+    
+    .feature-list li::before {
+        content: '✅';
+        font-size: 14px;
+    }
+    
+    .api-response {
+        margin-top: 20px;
+        padding: 16px;
+        background: rgba(247, 249, 250, 0.8);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        border: 1px solid #E1E8ED;
+        display: none;
+    }
+    
+    .response-header {
+        font-weight: 700;
+        color: #14171A;
+        margin-bottom: 8px;
+    }
+    
+    .loading-spinner {
+        display: none;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+    
+    .spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #E1E8ED;
+        border-top: 2px solid #1DA1F2;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="api-header">
+    <h4>⚡ API Documentation</h4>
+</div>
+
+<div class="api-content">
+    <div class="api-section">
+        <h5>🚀 API Data Sharing</h5>
+        <p style="color: #657786; line-height: 1.6; margin-bottom: 16px;">
+            API untuk berbagi pakai data detail posted yang ditampilkan di halaman dashboard. Endpoint ini menyediakan akses programatis ke semua data posting dengan format yang terstruktur dan mudah digunakan.
+        </p>
+        
+        <div style="background: linear-gradient(135deg, #E3F2FD, #F3E5F5); padding: 16px; border-radius: 12px; border-left: 4px solid #1DA1F2; margin-bottom: 16px;">
+            <strong style="color: #1976D2;">📊 Data yang Tersedia:</strong>
+            <br><span style="color: #424242; font-size: 14px;">Tanggal posting • Waktu posting • Username • Pesan/konten • Lokasi</span>
+        </div>
+        
+        <ul class="feature-list">
+            <li>Data tanggal dan waktu posting</li>
+            <li>Informasi user yang posting</li>
+            <li>Pesan/konten tweet</li>
+            <li>Lokasi posting</li>
+            <li>Format JSON yang mudah digunakan</li>
+        </ul>
+    </div>
+    
+    <div class="api-section">
+        <h5>📡 Endpoints</h5>
+        
+        <div class="endpoint-card">
+            <div>
+                <span class="method-badge method-get">GET</span>
+                <strong>Get All Posts</strong>
+            </div>
+            <div class="endpoint-url">GET /api/posts/</div>
+            <p style="color: #657786; font-size: 14px; margin: 8px 0;">
+                Mendapatkan semua data posted dengan detail lengkap: tanggal, waktu, user, pesan, dan lokasi.
+            </p>
+            
+            <div style="background: #E3F2FD; padding: 12px; border-radius: 8px; margin: 8px 0; font-size: 13px;">
+                <strong>💡 Info:</strong> Data ini sama persis dengan yang ditampilkan di halaman dashboard - perfect untuk berbagi atau integrasi dengan aplikasi lain!
+            </div>
+            
+            <button class="try-button" onclick="tryAPI()">Coba Sekarang</button>
+            
+            <div class="response-example">
+{
+  "status": "success",
+  "description": "Data detail posted dari halaman dashboard",
+  "data": [
+    {
+      "id": 1,
+      "tanggal": "2025-09-29",
+      "waktu": "18:30:45", 
+      "user": "icaldi",
+      "pesan": "Menikmati suasana sore di Jakarta �",
+      "lokasi": "Jakarta, Indonesia"
+    },
+    {
+      "id": 2,
+      "tanggal": "2025-09-29",
+      "waktu": "17:45:12",
+      "user": "johndoe", 
+      "pesan": "Cuaca cerah di Bandung hari ini ☀️",
+      "lokasi": "Bandung, Jawa Barat"
+    }
+  ],
+  "total": 1
+}
+            </div>
+        </div>
+    </div>
+    
+    <div class="api-section">
+        <h5>📋 Data Fields yang Dibagikan</h5>
+        <p style="color: #657786; margin-bottom: 16px;">Data detail posted yang tersedia melalui API:</p>
+        
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr style="background: #F7F9FA;">
+                <th style="padding: 12px; text-align: left; border-bottom: 1px solid #E1E8ED;">Field</th>
+                <th style="padding: 12px; text-align: left; border-bottom: 1px solid #E1E8ED;">Tipe</th>
+                <th style="padding: 12px; text-align: left; border-bottom: 1px solid #E1E8ED;">Deskripsi</th>
+            </tr>
+            <tr>
+                <td style="padding: 12px; border-bottom: 1px solid #E1E8ED;"><code>id</code></td>
+                <td style="padding: 12px; border-bottom: 1px solid #E1E8ED;">Integer</td>
+                <td style="padding: 12px; border-bottom: 1px solid #E1E8ED;">ID unik tweet</td>
+            </tr>
+            <tr>
+                <td style="padding: 12px; border-bottom: 1px solid #E1E8ED;"><code>tanggal</code></td>
+                <td style="padding: 12px; border-bottom: 1px solid #E1E8ED;">String</td>
+                <td style="padding: 12px; border-bottom: 1px solid #E1E8ED;">Tanggal posting (YYYY-MM-DD)</td>
+            </tr>
+            <tr>
+                <td style="padding: 12px; border-bottom: 1px solid #E1E8ED;"><code>waktu</code></td>
+                <td style="padding: 12px; border-bottom: 1px solid #E1E8ED;">String</td>
+                <td style="padding: 12px; border-bottom: 1px solid #E1E8ED;">Waktu posting (HH:MM:SS)</td>
+            </tr>
+            <tr>
+                <td style="padding: 12px; border-bottom: 1px solid #E1E8ED;"><code>user</code></td>
+                <td style="padding: 12px; border-bottom: 1px solid #E1E8ED;">String</td>
+                <td style="padding: 12px; border-bottom: 1px solid #E1E8ED;">Username yang posting</td>
+            </tr>
+            <tr>
+                <td style="padding: 12px; border-bottom: 1px solid #E1E8ED;"><code>pesan</code></td>
+                <td style="padding: 12px; border-bottom: 1px solid #E1E8ED;">String</td>
+                <td style="padding: 12px; border-bottom: 1px solid #E1E8ED;">Isi pesan/konten (maks 140 karakter)</td>
+            </tr>
+            <tr>
+                <td style="padding: 12px;"><code>lokasi</code></td>
+                <td style="padding: 12px;">String</td>
+                <td style="padding: 12px;">Nama lokasi posting</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="api-section">
+        <h5>💡 Contoh Penggunaan</h5>
+        <p style="color: #657786; margin-bottom: 16px;">Berikut contoh cara menggunakan API untuk mengakses data posted:</p>
+        
+        <div style="background: #F7F9FA; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+            <strong>JavaScript (Fetch API)</strong>
+            <div class="response-example">
+fetch('/api/posts/')
+  .then(response => response.json())
+  .then(data => {
+    console.log('Total posted:', data.total);
+    data.data.forEach(post => {
+      console.log(`[${post.tanggal} ${post.waktu}] ${post.user}: ${post.pesan}`);
+      console.log(`Lokasi: ${post.lokasi}`);
+    });
+  });
+            </div>
+        </div>
+        
+        <div style="background: #F7F9FA; padding: 16px; border-radius: 8px;">
+            <strong>Python (Requests)</strong>
+            <div class="response-example">
+import requests
+
+response = requests.get('http://localhost:8000/api/posts/')
+data = response.json()
+
+for post in data['data']:
+    print(f"[{post['tanggal']} {post['waktu']}] {post['user']}")
+    print(f"Pesan: {post['pesan']}")
+    print(f"Lokasi: {post['lokasi']}")
+    print("-" * 50)
+            </div>
+        </div>
+    </div>
+    
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner"></div>
+        <span style="margin-left: 8px; color: #657786;">Loading...</span>
+    </div>
+    
+    <div class="api-response" id="apiResponse">
+        <div class="response-header">API Response:</div>
+        <pre id="responseData" style="background: #263238; color: #E8F5E8; padding: 16px; border-radius: 8px; overflow-x: auto; font-size: 12px; margin: 8px 0;"></pre>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function tryAPI() {
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const apiResponse = document.getElementById('apiResponse');
+    const responseData = document.getElementById('responseData');
+    
+    // Show loading
+    loadingSpinner.style.display = 'flex';
+    apiResponse.style.display = 'none';
+    
+    // Fetch API data
+    fetch('/api/posts/')
+        .then(response => response.json())
+        .then(data => {
+            loadingSpinner.style.display = 'none';
+            apiResponse.style.display = 'block';
+            responseData.textContent = JSON.stringify(data, null, 2);
+        })
+        .catch(error => {
+            loadingSpinner.style.display = 'none';
+            apiResponse.style.display = 'block';
+            responseData.textContent = 'Error: ' + error.message;
+        });
+}
+</script>
+{% endblock %}

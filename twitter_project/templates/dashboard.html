@@ -1,0 +1,1047 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Twitter{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Header */
+    .main-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid #E1E8ED;
+        position: sticky;
+        top: 0;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        z-index: 100;
+    }
+    
+    .main-header h4 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 800;
+        color: #14171A;
+    }
+    
+    /* Compose Tweet */
+    .compose-section {
+        border-bottom: 1px solid #E1E8ED;
+        padding: 16px 20px;
+    }
+    
+    .compose-form {
+        display: flex;
+        gap: 12px;
+        padding: 20px;
+        border-bottom: 8px solid #E1E8ED;
+    }
+    
+    /* Django form field styling */
+    #id_content {
+        width: 100%;
+        border: none;
+        resize: none;
+        font-size: 18px;
+        line-height: 1.4;
+        outline: none;
+        font-family: inherit;
+        background: transparent;
+        padding: 12px 0;
+        min-height: 60px;
+    }
+    
+    #id_location {
+        width: 100%;
+        border: 1px solid #E1E8ED;
+        padding: 10px 40px 10px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        outline: none;
+        margin-bottom: 10px;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23657786" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+    }
+    
+    #id_location:focus {
+        border-color: #1DA1F2;
+        box-shadow: 0 0 0 2px rgba(29, 161, 242, 0.1);
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%231DA1F2" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>');
+    }
+    
+    #id_image {
+        display: none;
+    }
+    
+    /* Location suggestions styling */
+    .location-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #E1E8ED;
+        border-top: none;
+        border-radius: 0 0 12px 12px;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .suggestion-item {
+        padding: 12px 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #F7F9FA;
+        transition: background-color 0.2s;
+    }
+    
+    .suggestion-item:hover {
+        background-color: #F7F9FA;
+    }
+    
+    .suggestion-item:last-child {
+        border-bottom: none;
+    }
+    
+    .suggestion-item.loading {
+        background-color: #F0F8FF;
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+    
+    .suggestion-item.no-results {
+        background-color: #FFF8DC;
+        color: #B8860B;
+        cursor: default;
+    }
+    
+    .suggestion-item.error {
+        background-color: #FFE4E1;
+        color: #DC143C;
+        cursor: default;
+    }
+    
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.7; }
+        100% { opacity: 1; }
+    }
+    
+    .suggestion-source {
+        font-size: 12px;
+        opacity: 0.7;
+        margin-left: auto;
+    }
+    
+    .location-icon {
+        margin-right: 8px;
+        color: #1DA1F2;
+    }
+    
+    .suggestion-type {
+        margin-left: auto;
+        font-size: 12px;
+        color: #657786;
+        background: #E1E8ED;
+        padding: 2px 6px;
+        border-radius: 8px;
+    }
+    
+    .compose-avatar {
+        width: 48px;
+        height: 48px;
+        background: #1DA1F2;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        flex-shrink: 0;
+    }
+    
+    .compose-input-section {
+        flex: 1;
+    }
+    
+    .tweet-textarea {
+        width: 100%;
+        border: none;
+        outline: none;
+        font-size: 20px;
+        line-height: 1.4;
+        min-height: 60px;
+        resize: none;
+        margin-bottom: 12px;
+        padding: 12px 0;
+        background: transparent;
+    }
+    
+    .tweet-textarea::placeholder {
+        color: #657786;
+    }
+    
+    .location-container {
+        position: relative;
+        margin-bottom: 12px;
+    }
+    
+    .location-input {
+        width: 100%;
+        border: 1px solid #E1E8ED;
+        border-radius: 20px;
+        padding: 12px 16px;
+        font-size: 15px;
+        transition: border-color 0.2s;
+    }
+    
+    .location-input:focus {
+        border-color: #1DA1F2;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(29, 161, 242, 0.2);
+    }
+    
+    .location-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #E1E8ED;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+    }
+    
+    .suggestion-item {
+        padding: 12px 16px;
+        cursor: pointer;
+        border-bottom: 1px solid #F7F9FA;
+        display: flex;
+        align-items: center;
+    }
+    
+    .suggestion-item:hover {
+        background: #F7F9FA;
+    }
+    
+    .suggestion-item:last-child {
+        border-bottom: none;
+    }
+    
+    .suggestion-icon {
+        margin-right: 12px;
+        color: #657786;
+    }
+    
+    .suggestion-text {
+        flex: 1;
+    }
+    
+    .suggestion-main {
+        font-weight: 500;
+        color: #14171A;
+    }
+    
+    .suggestion-sub {
+        font-size: 13px;
+        color: #657786;
+    }
+    
+    .gps-status {
+        background: #E8F5E8;
+        color: #1D9BF0;
+        padding: 8px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        margin-top: 8px;
+        display: none;
+    }
+    
+    .photo-upload-container {
+        margin-bottom: 12px;
+    }
+    
+    .photo-preview {
+        margin-bottom: 12px;
+    }
+    
+    .photo-preview img {
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: 12px;
+        margin-bottom: 8px;
+    }
+    
+    .remove-photo-btn {
+        background: #E91E63;
+        color: white;
+        border: none;
+        border-radius: 15px;
+        padding: 4px 12px;
+        font-size: 12px;
+        cursor: pointer;
+    }
+    
+    .compose-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .gps-btn, .photo-btn {
+        background: #657786;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 8px 16px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    
+    .gps-btn:hover, .photo-btn:hover {
+        background: #536471;
+    }
+    
+    .gps-btn.active {
+        background: #1DA1F2;
+    }
+    
+    .char-count {
+        color: #657786;
+        font-size: 14px;
+    }
+    
+    .char-count.warning {
+        color: #FF6B35;
+    }
+    
+    .char-count.danger {
+        color: #E0245E;
+    }
+    
+    .submit-btn {
+        background: #1DA1F2;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 8px 24px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    
+    .submit-btn:hover {
+        background: #1A91DA;
+    }
+    
+    .submit-btn:disabled {
+        background: #AAB8C2;
+        cursor: not-allowed;
+    }
+    
+    /* Timeline */
+    .timeline {
+        min-height: 400px;
+    }
+    
+    .tweet {
+        border-bottom: 1px solid #E1E8ED;
+        padding: 16px;
+        display: flex;
+        gap: 12px;
+        transition: background-color 0.2s;
+        align-items: flex-start;
+    }
+    
+    .tweet:hover {
+        background: rgba(0, 0, 0, 0.03);
+    }
+    
+    .tweet-avatar {
+        width: 48px;
+        height: 48px;
+        background: #1DA1F2;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        flex-shrink: 0;
+    }
+    
+    .tweet-content {
+        flex: 1;
+        min-width: 0; /* Prevents flex item from overflowing */
+    }
+    
+    .tweet-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+    }
+    
+    .tweet-username {
+        font-weight: 700;
+        color: #14171A;
+    }
+    
+    .tweet-handle {
+        color: #657786;
+    }
+    
+    .tweet-time {
+        color: #657786;
+    }
+    
+    .tweet-text {
+        color: #14171A;
+        line-height: 1.4;
+        margin-bottom: 12px;
+        word-wrap: break-word;
+    }
+    
+    .tweet-image {
+        margin: 12px 0;
+    }
+    
+    .tweet-image img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 12px;
+        border: 1px solid #E1E8ED;
+    }
+    
+    .tweet-meta {
+        color: #657786;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+    }
+    
+    .location-link {
+        color: #1DA1F2;
+        text-decoration: none;
+    }
+    
+    .location-link:hover {
+        color: #0E8CD8;
+        background: rgba(29, 161, 242, 0.1);
+        text-decoration: none;
+        padding: 2px 4px;
+        border-radius: 4px;
+    }
+    
+    .delete-btn {
+        background: none;
+        border: none;
+        color: #E91E63;
+        cursor: pointer;
+        font-size: 12px;
+        padding: 2px 4px;
+        border-radius: 4px;
+        margin-left: 4px;
+        transition: background-color 0.2s;
+    }
+    
+    .delete-btn:hover {
+        background: rgba(233, 30, 99, 0.1);
+        text-decoration: none;
+    }
+    
+    /* Pagination */
+    .pagination {
+        text-align: center;
+        padding: 20px;
+        border-top: 1px solid #E1E8ED;
+    }
+    
+    .pagination a {
+        color: #1DA1F2;
+        text-decoration: none;
+        margin: 0 10px;
+        padding: 8px 16px;
+        border-radius: 20px;
+        transition: background-color 0.2s;
+    }
+    
+    .pagination a:hover {
+        background: #F7F9FA;
+    }
+    
+    .pagination span {
+        color: #657786;
+        margin: 0 10px;
+    }
+    
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #657786;
+    }
+    
+    .empty-state h6 {
+        font-size: 18px;
+        margin-bottom: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-header">
+    <h4>Home</h4>
+</div>
+
+<div class="compose-section">
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    {% endif %}
+    
+    <!-- Display form errors if any -->
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <div>{{ field }}: {{ error }}</div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <form method="post" enctype="multipart/form-data" class="compose-form">
+        {% csrf_token %}
+        <div class="compose-avatar">{{ user.username|first|upper }}</div>
+        <div class="compose-input-section">
+            {{ form.content }}
+            
+            <div class="location-container">
+                {{ form.location }}
+                <div class="location-suggestions" id="locationSuggestions"></div>
+                <div class="gps-status" id="gpsStatus"></div>
+            </div>
+            
+            <!-- Photo Upload -->
+            <div class="photo-upload-container">
+                {{ form.image }}
+                <div class="photo-preview" id="photoPreview" style="display: none;">
+                    <img id="previewImage">
+                    <br>
+                    <button type="button" class="remove-photo-btn" id="removePhotoBtn">Remove Photo</button>
+                </div>
+            </div>
+            
+            {{ form.latitude }}
+            {{ form.longitude }}
+            
+            <div class="compose-actions">
+                <div class="action-buttons">
+                    <button type="button" class="gps-btn" id="getLocationBtn">📍 Get GPS</button>
+                    <button type="button" class="photo-btn" id="photoBtn">📷 Photo</button>
+                </div>
+                <div class="char-count">0/140</div>
+                <button type="submit" class="submit-btn">Tweet</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Timeline -->
+<div class="timeline">
+    {% if page_obj %}
+        {% for tweet in page_obj %}
+        <div class="tweet">
+            <div class="tweet-avatar">{{ tweet.user.username|first|upper }}</div>
+            <div class="tweet-content">
+                <div class="tweet-header">
+                    <span class="tweet-username">{{ tweet.user.username }}</span>
+                    <span class="tweet-handle">@{{ tweet.user.username|lower }}</span>
+                    <span class="tweet-time">· {{ tweet.created_at|timesince }} ago</span>
+                </div>
+                <div class="tweet-text">{{ tweet.content }}</div>
+                
+                {% if tweet.image %}
+                <div class="tweet-image">
+                    <img src="{{ tweet.image.url }}" alt="Tweet image">
+                </div>
+                {% endif %}
+                
+                <div class="tweet-meta">
+                    📅 {{ tweet.created_at|date:"d M Y" }} · ⏰ {{ tweet.created_at|time:"H:i" }} · 
+                    <a href="{% url 'map' %}?tweet_id={{ tweet.id }}" class="location-link">
+                        📍 {{ tweet.location }}
+                    </a>
+                    {% if tweet.user == user %}
+                        <form method="post" action="{% url 'delete_tweet' tweet.id %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this tweet?');">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="dashboard">
+                            <button type="submit" class="delete-btn">🗑️ Delete</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                {% endif %}
+                
+                <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">Next</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="empty-state">
+            <h6>Welcome to Twitter!</h6>
+            <p>Start by posting your first tweet with location.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Character counter - use Django form field ID
+    $('#id_content').on('input', function() {
+        const length = $(this).val().length;
+        const counter = $('.char-count');
+        counter.text(length + '/140');
+        
+        if (length > 120) {
+            counter.addClass('warning').removeClass('danger');
+        }
+        if (length > 130) {
+            counter.addClass('danger').removeClass('warning');
+        }
+        if (length <= 120) {
+            counter.removeClass('warning danger');
+        }
+        
+        $('.submit-btn').prop('disabled', length === 0 || length > 140);
+    });
+    
+    // Real-time location search using Nominatim API - like Google Maps
+    let searchTimeout;
+    let currentSearchRequest;
+    
+    $('#id_location').on('input', function() {
+        const query = $(this).val().trim();
+        const suggestions = $('#locationSuggestions');
+        
+        // Clear previous timeout
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+        
+        // Cancel previous request
+        if (currentSearchRequest) {
+            currentSearchRequest.abort();
+        }
+        
+        if (query.length < 3) {
+            suggestions.hide();
+            return;
+        }
+        
+        // Show loading indicator
+        suggestions.html('<div class="suggestion-item loading"><span class="suggestion-icon">�</span><div class="suggestion-text"><div class="suggestion-main">Mencari lokasi...</div></div></div>').show();
+        
+        // Debounce search requests
+        searchTimeout = setTimeout(function() {
+            searchLocation(query);
+        }, 300);
+    });
+    
+    // Enhanced location search with multiple APIs
+    function searchLocation(query) {
+        const suggestions = $('#locationSuggestions');
+        
+        // Try multiple APIs for better results
+        Promise.allSettled([
+            searchNominatim(query),
+            searchPhoton(query)
+        ]).then(results => {
+            let allData = [];
+            
+            // Combine results from all APIs
+            results.forEach(result => {
+                if (result.status === 'fulfilled' && result.value && result.value.length > 0) {
+                    allData = allData.concat(result.value);
+                }
+            });
+            
+            if (allData.length > 0) {
+                // Remove duplicates and sort by relevance
+                const uniqueData = removeDuplicateLocations(allData);
+                displayLocationSuggestions(uniqueData.slice(0, 8));
+            } else {
+                suggestions.html('<div class="suggestion-item no-results"><span class="suggestion-icon">🔍</span><div class="suggestion-text"><div class="suggestion-main">Tidak ada hasil ditemukan</div><div class="suggestion-sub">Coba kata kunci lain atau lebih spesifik</div></div></div>').show();
+            }
+        }).catch(error => {
+            suggestions.html('<div class="suggestion-item error"><span class="suggestion-icon">⚠️</span><div class="suggestion-text"><div class="suggestion-main">Error saat mencari lokasi</div><div class="suggestion-sub">Periksa koneksi internet</div></div></div>').show();
+        });
+    }
+    
+    // Search using Nominatim API
+    function searchNominatim(query) {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=6&countrycodes=id&addressdetails=1&accept-language=id,en`;
+        
+        return fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                return data.map(item => ({
+                    ...item,
+                    source: 'nominatim',
+                    score: calculateRelevanceScore(item, query)
+                }));
+            });
+    }
+    
+    // Search using Photon API (Alternative free geocoding)
+    function searchPhoton(query) {
+        const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&lang=id&limit=4&osm_tag=place:city&osm_tag=place:town&osm_tag=place:village&osm_tag=amenity`;
+        
+        return fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.features && data.features.length > 0) {
+                    return data.features.map(item => ({
+                        lat: item.geometry.coordinates[1],
+                        lon: item.geometry.coordinates[0],
+                        display_name: item.properties.name,
+                        address: item.properties,
+                        source: 'photon',
+                        score: calculateRelevanceScore(item.properties, query)
+                    }));
+                }
+                return [];
+            });
+    }
+    
+    // Calculate relevance score for sorting
+    function calculateRelevanceScore(item, query) {
+        const name = (item.name || item.display_name || '').toLowerCase();
+        const queryLower = query.toLowerCase();
+        
+        let score = 0;
+        
+        // Exact match gets highest score
+        if (name === queryLower) score += 100;
+        
+        // Starts with query gets high score
+        if (name.startsWith(queryLower)) score += 50;
+        
+        // Contains query gets medium score
+        if (name.includes(queryLower)) score += 25;
+        
+        // Prefer cities over other types
+        if (item.type === 'city' || item.class === 'place') score += 10;
+        
+        return score;
+    }
+    
+    // Remove duplicate locations
+    function removeDuplicateLocations(locations) {
+        const seen = new Set();
+        return locations.filter(location => {
+            const key = `${location.display_name || location.name}_${Math.round(location.lat * 1000)}_${Math.round(location.lon * 1000)}`;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        }).sort((a, b) => (b.score || 0) - (a.score || 0));
+    }
+    
+    // Display suggestions in dropdown
+    function displayLocationSuggestions(data) {
+        const suggestions = $('#locationSuggestions');
+        let html = '';
+        
+        data.forEach(function(item) {
+            const displayName = formatLocationName(item);
+            const category = getLocationCategory(item);
+            const icon = getLocationIcon(item);
+            
+            html += `
+                <div class="suggestion-item" data-location="${displayName}" data-lat="${item.lat}" data-lon="${item.lon}">
+                    <span class="suggestion-icon">${icon}</span>
+                    <div class="suggestion-text">
+                        <div class="suggestion-main">${displayName}</div>
+                        <div class="suggestion-sub">${category}</div>
+                    </div>
+                    <div class="suggestion-source">${item.source === 'photon' ? '🌍' : '🗺️'}</div>
+                </div>
+            `;
+        });
+        
+        suggestions.html(html).show();
+    }
+    
+    // Format location name for better display
+    function formatLocationName(item) {
+        const address = item.address || {};
+        let name = '';
+        
+        // Priority order for name selection
+        if (address.amenity) {
+            name = address.amenity;
+        } else if (address.shop) {
+            name = address.shop;
+        } else if (address.tourism) {
+            name = address.tourism;
+        } else if (address.building) {
+            name = address.building;
+        } else if (address.suburb) {
+            name = address.suburb;
+        } else if (address.village) {
+            name = address.village;
+        } else if (address.town) {
+            name = address.town;
+        } else if (address.city) {
+            name = address.city;
+        } else if (address.county) {
+            name = address.county;
+        } else {
+            name = item.display_name.split(',')[0];
+        }
+        
+        // Add location context
+        if (address.city && name !== address.city) {
+            name += `, ${address.city}`;
+        } else if (address.state && name !== address.state) {
+            name += `, ${address.state}`;
+        }
+        
+        return name;
+    }
+    
+    // Get location category for display
+    function getLocationCategory(item) {
+        const address = item.address || {};
+        const category = item.category || '';
+        const type = item.type || '';
+        
+        if (address.amenity) return 'Fasilitas';
+        if (address.shop) return 'Toko';
+        if (address.tourism) return 'Wisata';
+        if (category === 'place') {
+            if (type === 'city') return 'Kota';
+            if (type === 'town') return 'Kota';
+            if (type === 'village') return 'Desa';
+            if (type === 'suburb') return 'Daerah';
+        }
+        if (address.building) return 'Bangunan';
+        return 'Lokasi';
+    }
+    
+    // Get appropriate icon for location type
+    function getLocationIcon(item) {
+        const address = item.address || {};
+        const category = item.category || '';
+        const type = item.type || '';
+        
+        if (address.amenity) {
+            if (address.amenity.includes('restaurant') || address.amenity.includes('cafe')) return '🍴';
+            if (address.amenity.includes('hospital')) return '🏥';
+            if (address.amenity.includes('school')) return '🏫';
+            if (address.amenity.includes('university')) return '🎓';
+            if (address.amenity.includes('bank')) return '🏦';
+            if (address.amenity.includes('gas_station')) return '⛽';
+            return '🏢';
+        }
+        if (address.shop) return '🛍️';
+        if (address.tourism) return '🎯';
+        if (category === 'place') {
+            if (type === 'city') return '🏙️';
+            if (type === 'town') return '🏘️';
+            if (type === 'village') return '🏡';
+        }
+        if (address.building) return '🏢';
+        return '📍';
+    }
+
+    $(document).on('click', '.suggestion-item:not(.loading):not(.no-results):not(.error)', function() {
+        const location = $(this).data('location');
+        const lat = $(this).data('lat');
+        const lon = $(this).data('lon');
+        
+        $('#id_location').val(location);
+        
+        // Auto-fill coordinates if available
+        if (lat && lon) {
+            // Create hidden fields for coordinates if they don't exist
+            if ($('#id_latitude').length === 0) {
+                $('#id_location').after('<input type="hidden" id="id_latitude" name="latitude">');
+            }
+            if ($('#id_longitude').length === 0) {
+                $('#id_location').after('<input type="hidden" id="id_longitude" name="longitude">');
+            }
+            
+            $('#id_latitude').val(lat);
+            $('#id_longitude').val(lon);
+            
+            // Show coordinate info
+            $('#gpsStatus').text(`Koordinat tersimpan: ${parseFloat(lat).toFixed(6)}, ${parseFloat(lon).toFixed(6)}`).show();
+        }
+        
+        $('#locationSuggestions').hide();
+    });
+    
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('.location-container').length) {
+            $('#locationSuggestions').hide();
+        }
+    });
+    
+    // GPS functionality
+    $('#getLocationBtn').click(function() {
+        const btn = $(this);
+        const statusDiv = $('#gpsStatus');
+        
+        if (navigator.geolocation) {
+            btn.text('📍 Getting GPS...').prop('disabled', true);
+            
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                
+                $('#id_latitude').val(lat);
+                $('#id_longitude').val(lng);
+                
+                reverseGeocode(lat, lng).then(function(locationName) {
+                    $('#id_location').val(locationName).data('gps-location', locationName);
+                    btn.text('📍 GPS Active').addClass('active').prop('disabled', false);
+                    statusDiv.text(`GPS coordinates saved: ${lat.toFixed(6)}, ${lng.toFixed(6)}`).show();
+                }).catch(function() {
+                    $('#id_location').val(`GPS Location (${lat.toFixed(6)}, ${lng.toFixed(6)})`);
+                    btn.text('📍 GPS Active').addClass('active').prop('disabled', false);
+                    statusDiv.text(`GPS coordinates saved: ${lat.toFixed(6)}, ${lng.toFixed(6)}`).show();
+                });
+            }, function(error) {
+                btn.text('📍 Get GPS').prop('disabled', false);
+                statusDiv.text('GPS Error: ' + error.message).show();
+                console.error('GPS Error:', error);
+            });
+        } else {
+            alert('Browser tidak mendukung GPS. Silakan input lokasi manual.');
+        }
+    });
+    
+    // Reverse geocoding function
+    function reverseGeocode(lat, lng) {
+        return new Promise(function(resolve, reject) {
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1`;
+            
+            $.get(url)
+                .done(function(data) {
+                    if (data && data.display_name) {
+                        const address = data.address;
+                        let locationName = '';
+                        
+                        if (address.city) {
+                            locationName = address.city;
+                        } else if (address.town) {
+                            locationName = address.town;
+                        } else if (address.village) {
+                            locationName = address.village;
+                        } else if (address.county) {
+                            locationName = address.county;
+                        }
+                        
+                        if (address.state) {
+                            locationName += `, ${address.state}`;
+                        }
+                        
+                        if (address.country) {
+                            locationName += `, ${address.country}`;
+                        }
+                        
+                        resolve(locationName || data.display_name);
+                    } else {
+                        reject('No location found');
+                    }
+                })
+                .fail(function() {
+                    reject('Geocoding service failed');
+                });
+        });
+    }
+    
+    // Reset GPS status when manual typing
+    $('#id_location').on('input', function() {
+        const btn = $('#getLocationBtn');
+        const statusDiv = $('#gpsStatus');
+        
+        if (btn.hasClass('active') && $(this).val() !== $(this).data('gps-location')) {
+            btn.removeClass('active').text('📍 Get GPS');
+            statusDiv.hide();
+        }
+    });
+    
+    // Photo upload handling - use Django form field ID
+    $('#photoBtn').click(function() {
+        $('#id_image').click();
+    });
+    
+    $('#id_image').change(function() {
+        const file = this.files[0];
+        if (file) {
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file.');
+                return;
+            }
+            
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size must be less than 5MB.');
+                return;
+            }
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('#previewImage').attr('src', e.target.result);
+                $('#photoPreview').show();
+                $('#photoBtn').text('📷 Change Photo').css('background', '#1DA1F2');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    $('#removePhotoBtn').click(function() {
+        $('#id_image').val('');
+        $('#photoPreview').hide();
+        $('#photoBtn').text('📷 Photo').css('background', '#657786');
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,331 @@
+/* Reset CSS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f5f8fa;
+    line-height: 1.4;
+}
+
+/* ================== LOGIN STYLES ================== */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #1da1f2 0%, #0d8bd9 100%);
+}
+
+.login-box {
+    background: white;
+    padding: 50px 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 420px;
+    text-align: center;
+}
+
+.twitter-icon {
+    font-size: 40px;
+    margin-bottom: 25px;
+    display: block;
+}
+
+.login-box h1 {
+    color: #14171a;
+    margin-bottom: 35px;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.input-field {
+    width: 100%;
+    padding: 18px 15px;
+    margin-bottom: 20px;
+    border: 2px solid #e1e8ed;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+    background-color: #fff;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: #1da1f2;
+    box-shadow: 0 0 0 3px rgba(29, 161, 242, 0.1);
+}
+
+.login-btn {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #1da1f2, #0d8bd9);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 25px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(29, 161, 242, 0.3);
+}
+
+.login-footer {
+    color: #657786;
+    font-size: 14px;
+}
+
+.login-footer a {
+    color: #1da1f2;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.login-footer a:hover {
+    text-decoration: underline;
+}
+
+/* ================== DASHBOARD STYLES ================== */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f7f9fa;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 280px;
+    background: linear-gradient(180deg, #87ceeb 0%, #4682b4 100%);
+    padding: 25px 20px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.twitter-logo {
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 40px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.nav-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.nav-item {
+    color: rgba(255, 255, 255, 0.9);
+    padding: 15px 20px;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.nav-item.active {
+    background-color: rgba(255, 255, 255, 0.3);
+    color: white;
+    font-weight: 700;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding: 25px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Tweet Box */
+.tweet-box {
+    background: white;
+    border: 1px solid #e1e8ed;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.tweet-box textarea {
+    width: 100%;
+    height: 100px;
+    border: none;
+    resize: none;
+    font-size: 18px;
+    outline: none;
+    font-family: inherit;
+    line-height: 1.5;
+    color: #14171a;
+}
+
+.tweet-box textarea::placeholder {
+    color: #657786;
+    font-size: 18px;
+}
+
+.tweet-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e1e8ed;
+}
+
+.char-count {
+    color: #657786;
+    font-size: 14px;
+}
+
+.tweet-btn {
+    background: linear-gradient(135deg, #1da1f2, #0d8bd9);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.tweet-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(29, 161, 242, 0.3);
+}
+
+/* Timeline */
+.timeline {
+    background: white;
+    border: 1px solid #e1e8ed;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.tweet {
+    padding: 20px 25px;
+    border-bottom: 1px solid #e1e8ed;
+    transition: background-color 0.3s ease;
+}
+
+.tweet:last-child {
+    border-bottom: none;
+}
+
+.tweet:hover {
+    background-color: #f7f9fa;
+}
+
+.tweet-content {
+    line-height: 1.6;
+    color: #14171a;
+}
+
+.tweet-content strong {
+    color: #1da1f2;
+    font-weight: 600;
+}
+
+.tweet-content a {
+    color: #1da1f2;
+    text-decoration: none;
+}
+
+.tweet-content a:hover {
+    text-decoration: underline;
+}
+
+.tweet-time {
+    color: #657786;
+    font-size: 13px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+.tweet-actions-bottom {
+    display: flex;
+    gap: 30px;
+    margin-top: 15px;
+    padding-top: 10px;
+}
+
+.action {
+    color: #657786;
+    font-size: 13px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.action:hover {
+    color: #1da1f2;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .dashboard-container {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        padding: 15px;
+    }
+    
+    .nav-menu {
+        flex-direction: row;
+        overflow-x: auto;
+        gap: 10px;
+    }
+    
+    .nav-item {
+        white-space: nowrap;
+        padding: 10px 15px;
+    }
+    
+    .main-content {
+        padding: 15px;
+    }
+    
+    .login-box {
+        width: 90%;
+        margin: 20px;
+        padding: 30px 25px;
+    }
+}
+
+/* Loading states and animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.tweet {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Focus states for accessibility */
+.input-field:focus,
+.tweet-btn:focus,
+.login-btn:focus,
+.nav-item:focus {
+    outline: 2px solid #1da1f2;
+    outline-offset: 2px;
+}
